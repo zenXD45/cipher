@@ -1,0 +1,350 @@
+@import './pages/Auth.css';
+@import './pages/Chat.css';
+@import './components/ProfileModal.css';
+
+/* ------------------------------------------------------------------ */
+/* Cipher design tokens                                                */
+/*                                                                     */
+/* Shapes — one scale, followed everywhere:                            */
+/*   --r-surface: 14px   cards, panels, dialog, bubbles                */
+/*   --r-control: 9px    inputs, buttons, textareas                    */
+/*   --r-pill:   999px   chips, badges, avatars, presence dots         */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/newsreader-latin-400-normal.woff2') format('woff2');
+}
+
+:root {
+  --r-surface: 14px;
+  --r-control: 9px;
+  --r-pill: 999px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --d-fast: 120ms;
+  --d-med: 180ms;
+  --d-modal: 240ms;
+
+  --font-ui: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  --bg: #f5f2ea;
+  --surface: #fcfaf4;
+  --surface-2: #eee9dd;
+  --surface-3: #e7e0d2;
+  --ink: #211d14;
+  --ink-muted: #6b6354;
+  --ink-faint: #8b8271;
+  --line: #ddd6c6;
+  --line-strong: #c7bfab;
+  --accent: #17614f;
+  --accent-hover: #145342;
+  --accent-ink: #f4f8f5;
+  --accent-soft: #dcebe3;
+  --danger: #a53d2f;
+  --danger-soft: #f3dcd7;
+
+  --shadow-1: 0 1px 2px rgb(48 40 22 / 0.06), 0 4px 14px rgb(48 40 22 / 0.07);
+  --shadow-2: 0 2px 6px rgb(48 40 22 / 0.08), 0 14px 34px rgb(48 40 22 / 0.14);
+}
+
+[data-theme='dark'] {
+  --bg: #16130f;
+  --surface: #1d1913;
+  --surface-2: #282218;
+  --surface-3: #332c1f;
+  --ink: #ece5d4;
+  --ink-muted: #b3a990;
+  --ink-faint: #8a8170;
+  --line: #3a3325;
+  --line-strong: #4c432f;
+  --accent: #5ea887;
+  --accent-hover: #6cb594;
+  --accent-ink: #0f1a14;
+  --accent-soft: #22382d;
+  --danger: #e27665;
+  --danger-soft: #42231d;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 2px 8px rgb(0 0 0 / 0.5), 0 16px 40px rgb(0 0 0 / 0.55);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reset + base                                                        */
+/* ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  border-radius: var(--r-control);
+  padding: 10px 12px;
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+textarea {
+  resize: none;
+  min-height: 44px;
+}
+
+.hidden-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                             */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-control);
+  border: 1px solid transparent;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition:
+    background-color var(--d-fast) var(--ease-out),
+    border-color var(--d-fast) var(--ease-out),
+    color var(--d-fast) var(--ease-out),
+    transform var(--d-fast) var(--ease-out);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow-1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-control);
+  color: var(--ink-muted);
+  transition:
+    color var(--d-fast) var(--ease-out),
+    background-color var(--d-fast) var(--ease-out),
+    transform var(--d-fast) var(--ease-out);
+}
+
+.icon-btn:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+.link-btn {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity var(--d-fast) var(--ease-out);
+}
+
+.link-btn:hover {
+  opacity: 0.8;
+}
+
+.danger-link {
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------------------ */
+/* Chips + badges                                                      */
+/* ------------------------------------------------------------------ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.chip-e2ee {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pill {
+  border-radius: var(--r-pill);
+}
+
+/* ------------------------------------------------------------------ */
+/* Icons                                                               */
+/* ------------------------------------------------------------------ */
+
+.icon {
+  flex: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Boot screen                                                         */
+/* ------------------------------------------------------------------ */
+
+.boot {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--ink-muted);
+  font-family: var(--font-serif);
+  font-size: 18px;
+}
+
+.boot-ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid var(--line-strong);
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
