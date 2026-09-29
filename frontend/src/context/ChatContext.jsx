@@ -53,7 +53,13 @@ export function ChatProvider({ children }) {
           api.getUser(peerId),
           api.thread(peerId, null, 30)
         ]);
-        setPeer({ id: profile.id, username: profile.username, avatar: profile.avatar, ...(profile.publicKey || {}) });
+        setPeer({
+          id: profile.id,
+          username: profile.username,
+          avatar: profile.avatar,
+          publicKey: profile.publicKey?.spki || null,
+          fingerprint: profile.publicKey?.fingerprint || null
+        });
         setMessages(thread.messages);
         setHasOlder(thread.messages.length === 30);
         await markUnreadInThread(thread.messages);
