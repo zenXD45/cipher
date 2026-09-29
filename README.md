@@ -20,6 +20,34 @@ cd backend && cp .env.example .env && npm install && npm run dev
 cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
+## Deploying
+
+Split hosting: API on **Render**, SPA on **Vercel**, database on
+**MongoDB Atlas (M0)**.
+
+1. **Atlas** — create an M0 cluster, a DB user, and Network Access
+   `0.0.0.0/0`. Copy the SRV string:
+   `mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/cipher?retryWrites=true&w=majority`
+2. **Vercel** — import this repo with **Root Directory: `frontend`**
+   (build settings come from `frontend/vercel.json`). Add the env var
+   `VITE_API_URL=https://<api>.onrender.com` (no trailing slash) and
+   deploy. It is baked in at build time — changing it requires a
+   redeploy. Empty means same-origin and **breaks** on Vercel.
+3. **Render** — New → Blueprint → this repo (`render.yaml` at the root).
+   Set `MONGODB_URL`; `JWT_SECRET` is generated. Health check: `/health`.
+4. **Wire CORS** — set `FRONTEND_URL` on Render to the exact Vercel
+   origin and Restart. It is the allowlist for HTTP and WebSocket
+   origins; only that one origin is accepted.
+
+Notes:
+
+- Render free instances sleep after ~15 min idle; the first request
+  wakes them (30–50 s). Socket.IO reconnects on its own.
+- Vercel preview URLs are not allowlisted — only the production origin.
+- Single-origin alternative: `cd frontend && npm run build`, deploy only
+  Render, and the backend serves `frontend/dist` (no CORS, no
+  `VITE_API_URL`).
+
 ## Tests
 
 ```sh

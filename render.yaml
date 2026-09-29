@@ -1,0 +1,30 @@
+# Render Blueprint — Cipher API
+#
+# Render Dashboard → New → Blueprint → this repo.
+# Required env you fill in (sync: false): MONGODB_URL, FRONTEND_URL.
+# JWT_SECRET is generated automatically.
+#
+# FRONTEND_URL is the CORS allowlist for HTTP and the WebSocket handshake:
+# set it to the exact Vercel origin (https://<app>.vercel.app, no trailing
+# slash) after the frontend exists, then Restart.
+
+services:
+  - type: web
+    name: cipher-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URL
+        sync: false # mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/cipher?retryWrites=true&w=majority
+      - key: FRONTEND_URL
+        sync: false # https://<your-app>.vercel.app
