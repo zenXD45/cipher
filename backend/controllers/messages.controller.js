@@ -154,9 +154,10 @@ export async function send(req, res) {
   });
 
   const doc = await Message.findById(message._id).lean();
-  const payload = {
+  const base = {
     id: String(doc._id),
-    mine: false,
+    senderId: String(doc.senderId),
+    recipientId: String(doc.recipientId),
     payload: doc.payload,
     keyId: doc.keyId || '',
     read: Boolean(doc.readAt),
@@ -166,11 +167,11 @@ export async function send(req, res) {
   const senderRoom = `user:${req.userId}`;
   const recipientRoom = `user:${recipientId}`;
   if (req.app.get('io')) {
-    req.app.get('io').to(senderRoom).emit('message:new', payload);
-    req.app.get('io').to(recipientRoom).emit('message:new', payload);
+    req.app.get('io').to(senderRoom).emit('message:new', { ...base, mine: true });
+    req.app.get('io').to(recipientRoom).emit('message:new', { ...base, mine: false });
   }
 
-  res.status(201).json({ message: { ...payload, mine: String(doc.senderId) === req.userId } });
+  res.status(201).json({ message: { ...base, mine: String(doc.senderId) === req.userId } });
 }
 
 export async function markRead(req, res) {
